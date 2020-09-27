@@ -6,10 +6,53 @@
   map.classList.remove(`map--faded`);
 
   /**
+   * Возвращает случайное целое число в заданном промежутке
+   * @param {number} min минимальное значение диапазона
+   * @param {number} max максимальное значение диапазона
+   * @return {number} случайное число в диапазоне min - max
+   */
+  const randomRange = (min, max) => {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  };
+
+  /**
+   * Возвращает случайный элемент массива
+   * @param {Array} array массив из которого необходимо взять случайный элемент
+   * @return {number|string|object|array} случайный элемент массива
+   */
+  const randomElement = (array) => {
+    return array[Math.floor(Math.random() * array.length)];
+  };
+
+  /**
+   * Перемешивает заданный массив в случайном порядке
+   * @param {Array} array массив который необходимо перемешать
+   * @return {Array} массив, перемешанный в случайном порядке
+   */
+  const shuffleArray = (array) => {
+    let temp;
+    let j;
+    for (let i = array.length - 1; i > 0; i--) {
+      j = Math.floor(Math.random() * (i + 1));
+      temp = array[j];
+      array[j] = array[i];
+      array[i] = temp;
+    }
+    return array;
+  };
+
+  /**
+   * Копирует случайное количество элементов массива
+   * @param {Array} array массив из которого необходимо скопировать элементы
+   * @return {Array} новый массив произвольной длины
+   */
+  const copyArray = (array) => array.slice(0, randomRange(0, array.length - 1));
+
+  /**
    * Генерирует заданное количество моков объявлений
    * @param {number} count число необходимых моков
+   * @return {Array} массив объявлений
    */
-
   const generateMockADS = (count) => {
     const TITLES = [
       `Мило, уютно`,
@@ -57,60 +100,10 @@
     const MAX_Y = 630;
 
     /**
-     * Возвращает случайное целое число в заданном промежутке
-     * @param {number} min минимальное значение диапазона
-     * @param {number} max максимальное значение диапазона
-     */
-
-    const randomRange = (min, max) => {
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-    };
-
-    /**
-     * Возвращает случайный элемент массива
-     * @param {Array} array массив из которого необходимо взять случайный элемент
-     */
-
-    const randomElement = (array) => {
-      return array[Math.floor(Math.random() * array.length)];
-    };
-
-    /**
-     * Перемешивает заданный массив в случайном порядке
-     * @param {Array} array массив который необходимо перемешать
-     */
-
-    const shuffleArray = (array) => {
-      let temp;
-      let j;
-      for (let i = array.length - 1; i > 0; i--) {
-        j = Math.floor(Math.random() * (i + 1));
-        temp = array[j];
-        array[j] = array[i];
-        array[i] = temp;
-      }
-      return array;
-    };
-
-    /**
-     * Копирует случайное количество элементов массива
-     * @param {Array} array массив из которого необходимо скопировать элементы
-     */
-
-    const copyArray = (array) => {
-      const newArray = [];
-      const length = randomRange(1, array.length);
-      for (let i = 0; i < length; i++) {
-        newArray.push(array[i]);
-      }
-      return newArray;
-    };
-
-    /**
      * Генерирует массив номеров аватаров
      * @param {number} size количество номеров аватаров
+     * @return {Array} масиив строк типа "0" + number, заданной длины
      */
-
     const generateAvatarUrls = (size) => {
       const array = [];
       for (let i = 1; i <= size; i++) {
@@ -122,7 +115,6 @@
     const avatarUrls = shuffleArray(generateAvatarUrls(count));
 
     const ads = [];
-
     for (let i = 0; i < count; i++) {
       const ad = {
         author: {
@@ -156,7 +148,6 @@
    * Отрисовывает метки объявлений на карте
    * @param {Array} ads массив объявлений для отрисовки меток
    */
-
   const renderPins = (ads) => {
     const pinTemplate = document.querySelector(`#pin`).content.querySelector(`.map__pin`);
     const pinsList = document.querySelector(`.map__pins`);
@@ -164,8 +155,8 @@
     /**
      * Создает DOM-элемент метки объявления
      * @param {Object} ad объект объявления
+     * @return {HTMLElement} элемент метки объявления
      */
-
     const renderPin = (ad) => {
       const pinElement = pinTemplate.cloneNode(true);
       const PIN_WIDTH = 50;
