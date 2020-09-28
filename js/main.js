@@ -148,8 +148,9 @@
    * Отрисовывает метки объявлений на карте
    * @param {Array} ads массив объявлений для отрисовки меток
    */
-  const renderPins = (ads) => {
+  const renderAds = (ads) => {
     const pinTemplate = document.querySelector(`#pin`).content.querySelector(`.map__pin`);
+    const cardTemplate = document.querySelector(`#card`).content.querySelector(`.map__card`);
     const pinsList = document.querySelector(`.map__pins`);
 
     /**
@@ -170,13 +171,134 @@
       return pinElement;
     };
 
+    /**
+     * Создает DOM-элемент карточки объявления
+     * @param {Object} ad объект объявления
+     * @return {HTMLElement} элемент карточки объявления
+     */
+    const renderCard = (ad) => {
+      const cardElement = cardTemplate.cloneNode(true);
+
+      const cardTitle = cardElement.querySelector(`.popup__title`);
+      const title = ad.offer.title;
+      if (title) {
+        cardTitle.textContent = title;
+      } else {
+        cardTitle.remove();
+      }
+
+      const cardAddress = cardElement.querySelector(`.popup__text--address`);
+      const address = ad.offer.address;
+      if (address) {
+        cardAddress.textContent = address;
+      } else {
+        cardAddress.remove();
+      }
+
+      const cardPrice = cardElement.querySelector(`.popup__text--price`);
+      const price = ad.offer.price;
+      if (price) {
+        cardPrice.textContent = price + `₽/ночь`;
+      } else {
+        cardPrice.remove();
+      }
+
+      const cardType = cardElement.querySelector(`.popup__type`);
+      const type = ad.offer.type;
+      if (type) {
+        switch (type) {
+          case `flat`:
+            cardType.textContent = `Квартира`;
+            break;
+          case `bungalow`:
+            cardType.textContent = `Бунгало`;
+            break;
+          case `house`:
+            cardType.textContent = `Дом`;
+            break;
+          case `palace`:
+            cardType.textContent = `Дворец`;
+            break;
+          default:
+            cardType.textContent = `Неверный тип размещения`;
+            break;
+        }
+      } else {
+        cardType.remove();
+      }
+
+      const cardCapacity = cardElement.querySelector(`.popup__text--capacity`);
+      const rooms = ad.offer.rooms;
+      const guests = ad.offer.guests;
+      if (rooms && guests) {
+        cardCapacity.textContent = `${ad.offer.rooms} комнаты для ${ad.offer.guests} гостей`;
+      } else {
+        cardCapacity.remove();
+      }
+
+      const cardTime = cardElement.querySelector(`.popup__text--time`);
+      const checkin = ad.offer.checkin;
+      const checkout = ad.offer.checkout;
+      if (checkin && checkout) {
+        cardTime.textContent = `Заезд после ${ad.offer.checkin}, выезд\u00A0до ${ad.offer.checkout}`;
+      } else {
+        cardTime.remove();
+      }
+
+      const cardFeatures = cardElement.querySelector(`.popup__features`);
+      const features = ad.offer.features;
+      if (features) {
+        cardFeatures.innerHTML = ``;
+        features.forEach((feature) => {
+          const featureElement = document.createElement(`li`);
+          featureElement.classList.add(`popup__feature`, `popup__feature--${feature}`);
+          cardFeatures.append(featureElement);
+        });
+      } else {
+        cardFeatures.remove();
+      }
+
+      const cardDescription = cardElement.querySelector(`.popup__description`);
+      const description = ad.offer.description;
+      if (description) {
+        cardDescription.textContent = description;
+      } else {
+        cardDescription.remove();
+      }
+
+      const cardPhotos = cardElement.querySelector(`.popup__photos`);
+      const photoTemplate = cardPhotos.querySelector(`.popup__photo`);
+      const photos = ad.offer.photos;
+      if (photos) {
+        cardPhotos.innerHTML = ``;
+        photos.forEach((photo) => {
+          const photoElement = photoTemplate.cloneNode(true);
+          photoElement.src = photo;
+          cardPhotos.append(photoElement);
+        });
+      } else {
+        cardPhotos.remove();
+      }
+
+      const cardAvatar = cardElement.querySelector(`.popup__avatar`);
+      const avatar = ad.author.avatar;
+      if (avatar) {
+        cardAvatar.src = avatar;
+      } else {
+        cardAvatar.remove();
+      }
+
+      return cardElement;
+    };
+
     const adsFragment = document.createDocumentFragment();
     for (const ad of ads) {
-      adsFragment.appendChild(renderPin(ad));
+      adsFragment.append(renderPin(ad));
+      adsFragment.append(renderCard(ad));
     }
-    pinsList.appendChild(adsFragment);
+    pinsList.append(adsFragment);
   };
 
   const ads = generateMockADS(ADS_COUNT);
-  renderPins(ads);
+  renderAds(ads);
 })();
