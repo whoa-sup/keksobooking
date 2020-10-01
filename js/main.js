@@ -2,8 +2,14 @@
 
 (() => {
   const ADS_COUNT = 8;
+  const FLAT_TYPES = {
+    flat: `Квартира`,
+    bungalow: `Бунгало`,
+    house: `Дом`,
+    palace: `Дворец`,
+  };
   const map = document.querySelector(`.map`);
-  map.classList.remove(`map--faded`);
+  const mapFiltersContainer = document.querySelector(`.map__filters-container`);
 
   /**
    * Возвращает случайное целое число в заданном промежутке
@@ -11,16 +17,16 @@
    * @param {number} max максимальное значение диапазона
    * @return {number} случайное число в диапазоне min - max
    */
-  const randomRange = (min, max) => {
+  const getRandomNumberFromRange = (min, max) => {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   };
 
   /**
    * Возвращает случайный элемент массива
    * @param {Array} array массив из которого необходимо взять случайный элемент
-   * @return {number|string|object|array} случайный элемент массива
+   * @return {*} случайный элемент массива
    */
-  const randomElement = (array) => {
+  const getRandomArrayElement = (array) => {
     return array[Math.floor(Math.random() * array.length)];
   };
 
@@ -46,14 +52,28 @@
    * @param {Array} array массив из которого необходимо скопировать элементы
    * @return {Array} новый массив произвольной длины
    */
-  const copyArray = (array) => array.slice(0, randomRange(0, array.length - 1));
+  const copyArrayRandomElements = (array) => array.slice(0, getRandomNumberFromRange(0, array.length - 1));
+
+  /**
+   * Проверяет наличие данных, если они есть - запписывает в элемент textContent, если нет - удаляет элемент
+   * @param {string | number} data данные по которым необходимо добавить textContent
+   * @param {HTMLElement} element DOM элемент в который необходимо записать textContent
+   * @param {string | number} text по-умолчанию = data, дает возможность изменить содержимое textContent
+   */
+  const renderTextContent = (data, element, text = data) => {
+    if (data) {
+      element.textContent = text;
+    } else {
+      element.remove();
+    }
+  };
 
   /**
    * Генерирует заданное количество моков объявлений
    * @param {number} count число необходимых моков
    * @return {Array} массив объявлений
    */
-  const generateMockADS = (count) => {
+  const generateMockAds = (count) => {
     const TITLES = [
       `Мило, уютно`,
       `Мило,но дорого`,
@@ -121,20 +141,20 @@
           avatar: `img/avatars/user${avatarUrls[i]}.png`,
         },
         offer: {
-          title: randomElement(TITLES),
-          price: randomRange(MIN_PRICE, MAX_PRICE),
-          type: randomElement(TYPES),
-          rooms: randomElement(ROOMS_NUMBER),
-          guests: randomElement(GUESTS_NUMBER),
-          checkin: randomElement(CHECKINS),
-          checkout: randomElement(CHECKOUTS),
-          features: copyArray(FEATURES),
-          description: randomElement(DESCRIPTIONS),
-          photos: copyArray(PHOTOS),
+          title: getRandomArrayElement(TITLES),
+          price: getRandomNumberFromRange(MIN_PRICE, MAX_PRICE),
+          type: getRandomArrayElement(TYPES),
+          rooms: getRandomArrayElement(ROOMS_NUMBER),
+          guests: getRandomArrayElement(GUESTS_NUMBER),
+          checkin: getRandomArrayElement(CHECKINS),
+          checkout: getRandomArrayElement(CHECKOUTS),
+          features: copyArrayRandomElements(FEATURES),
+          description: getRandomArrayElement(DESCRIPTIONS),
+          photos: copyArrayRandomElements(PHOTOS),
         },
         location: {
-          x: randomRange(MIN_X, MAX_X),
-          y: randomRange(MIN_Y, MAX_Y),
+          x: getRandomNumberFromRange(MIN_X, MAX_X),
+          y: getRandomNumberFromRange(MIN_Y, MAX_Y),
         },
       };
       ad.offer.address = `${ad.location.x}, ${ad.location.y}`;
@@ -148,10 +168,11 @@
    * Отрисовывает метки объявлений на карте
    * @param {Array} ads массив объявлений для отрисовки меток
    */
-  const renderAds = (ads) => {
+  const renderPins = (ads) => {
     const pinTemplate = document.querySelector(`#pin`).content.querySelector(`.map__pin`);
-    const cardTemplate = document.querySelector(`#card`).content.querySelector(`.map__card`);
     const pinsList = document.querySelector(`.map__pins`);
+    const PIN_WIDTH = 50;
+    const PIN_HEIGHT = 70;
 
     /**
      * Создает DOM-элемент метки объявления
@@ -160,145 +181,183 @@
      */
     const renderPin = (ad) => {
       const pinElement = pinTemplate.cloneNode(true);
-      const PIN_WIDTH = 50;
-      const PIN_HEIGHT = 70;
+      const pinImage = pinElement.querySelector(`img`);
 
       pinElement.style.left = `${ad.location.x - PIN_WIDTH / 2}px`;
       pinElement.style.top = `${ad.location.y - PIN_HEIGHT}px`;
-      pinElement.querySelector(`img`).src = ad.author.avatar;
-      pinElement.querySelector(`img`).alt = ad.offer.title;
+      pinImage.src = ad.author.avatar;
+      pinImage.alt = ad.offer.title;
 
       return pinElement;
-    };
-
-    /**
-     * Создает DOM-элемент карточки объявления
-     * @param {Object} ad объект объявления
-     * @return {HTMLElement} элемент карточки объявления
-     */
-    const renderCard = (ad) => {
-      const cardElement = cardTemplate.cloneNode(true);
-
-      const cardTitle = cardElement.querySelector(`.popup__title`);
-      const title = ad.offer.title;
-      if (title) {
-        cardTitle.textContent = title;
-      } else {
-        cardTitle.remove();
-      }
-
-      const cardAddress = cardElement.querySelector(`.popup__text--address`);
-      const address = ad.offer.address;
-      if (address) {
-        cardAddress.textContent = address;
-      } else {
-        cardAddress.remove();
-      }
-
-      const cardPrice = cardElement.querySelector(`.popup__text--price`);
-      const price = ad.offer.price;
-      if (price) {
-        cardPrice.textContent = price + `₽/ночь`;
-      } else {
-        cardPrice.remove();
-      }
-
-      const cardType = cardElement.querySelector(`.popup__type`);
-      const type = ad.offer.type;
-      if (type) {
-        switch (type) {
-          case `flat`:
-            cardType.textContent = `Квартира`;
-            break;
-          case `bungalow`:
-            cardType.textContent = `Бунгало`;
-            break;
-          case `house`:
-            cardType.textContent = `Дом`;
-            break;
-          case `palace`:
-            cardType.textContent = `Дворец`;
-            break;
-          default:
-            cardType.textContent = `Неверный тип размещения`;
-            break;
-        }
-      } else {
-        cardType.remove();
-      }
-
-      const cardCapacity = cardElement.querySelector(`.popup__text--capacity`);
-      const rooms = ad.offer.rooms;
-      const guests = ad.offer.guests;
-      if (rooms && guests) {
-        cardCapacity.textContent = `${ad.offer.rooms} комнаты для ${ad.offer.guests} гостей`;
-      } else {
-        cardCapacity.remove();
-      }
-
-      const cardTime = cardElement.querySelector(`.popup__text--time`);
-      const checkin = ad.offer.checkin;
-      const checkout = ad.offer.checkout;
-      if (checkin && checkout) {
-        cardTime.textContent = `Заезд после ${ad.offer.checkin}, выезд\u00A0до ${ad.offer.checkout}`;
-      } else {
-        cardTime.remove();
-      }
-
-      const cardFeatures = cardElement.querySelector(`.popup__features`);
-      const features = ad.offer.features;
-      if (features) {
-        cardFeatures.innerHTML = ``;
-        features.forEach((feature) => {
-          const featureElement = document.createElement(`li`);
-          featureElement.classList.add(`popup__feature`, `popup__feature--${feature}`);
-          cardFeatures.append(featureElement);
-        });
-      } else {
-        cardFeatures.remove();
-      }
-
-      const cardDescription = cardElement.querySelector(`.popup__description`);
-      const description = ad.offer.description;
-      if (description) {
-        cardDescription.textContent = description;
-      } else {
-        cardDescription.remove();
-      }
-
-      const cardPhotos = cardElement.querySelector(`.popup__photos`);
-      const photoTemplate = cardPhotos.querySelector(`.popup__photo`);
-      const photos = ad.offer.photos;
-      if (photos) {
-        cardPhotos.innerHTML = ``;
-        photos.forEach((photo) => {
-          const photoElement = photoTemplate.cloneNode(true);
-          photoElement.src = photo;
-          cardPhotos.append(photoElement);
-        });
-      } else {
-        cardPhotos.remove();
-      }
-
-      const cardAvatar = cardElement.querySelector(`.popup__avatar`);
-      const avatar = ad.author.avatar;
-      if (avatar) {
-        cardAvatar.src = avatar;
-      } else {
-        cardAvatar.remove();
-      }
-
-      return cardElement;
     };
 
     const adsFragment = document.createDocumentFragment();
     for (const ad of ads) {
       adsFragment.append(renderPin(ad));
-      adsFragment.append(renderCard(ad));
     }
     pinsList.append(adsFragment);
   };
 
-  const ads = generateMockADS(ADS_COUNT);
-  renderAds(ads);
+  // /**
+  //  * Создает DOM-элемент карточки объявления
+  //  * @param {Object} ad объект объявления
+  //  */
+  // const renderCard = (ad) => {
+  //   const cardTemplate = document.querySelector(`#card`).content.querySelector(`.map__card`);
+  //   const cardElement = cardTemplate.cloneNode(true);
+
+  //   const cardTitle = cardElement.querySelector(`.popup__title`);
+  //   const title = ad.offer.title;
+  //   renderTextContent(title, cardTitle);
+
+  //   const cardAddress = cardElement.querySelector(`.popup__text--address`);
+  //   const address = ad.offer.address;
+  //   renderTextContent(address, cardAddress);
+
+  //   const cardPrice = cardElement.querySelector(`.popup__text--price`);
+  //   const price = ad.offer.price;
+  //   renderTextContent(price, cardPrice, price + `₽/ночь`);
+
+  //   const cardType = cardElement.querySelector(`.popup__type`);
+  //   const type = ad.offer.type;
+  //   renderTextContent(type, cardType, FLAT_TYPES[type]);
+
+  //   const cardCapacity = cardElement.querySelector(`.popup__text--capacity`);
+  //   const rooms = ad.offer.rooms;
+  //   const guests = ad.offer.guests;
+  //   if (rooms && guests) {
+  //     cardCapacity.textContent = `${ad.offer.rooms} комнаты для ${ad.offer.guests} гостей`;
+  //   } else {
+  //     cardCapacity.remove();
+  //   }
+
+  //   const cardTime = cardElement.querySelector(`.popup__text--time`);
+  //   const checkin = ad.offer.checkin;
+  //   const checkout = ad.offer.checkout;
+  //   if (checkin && checkout) {
+  //     cardTime.textContent = `Заезд после ${ad.offer.checkin}, выезд\u00A0до ${ad.offer.checkout}`;
+  //   } else {
+  //     cardTime.remove();
+  //   }
+
+  //   const cardFeatures = cardElement.querySelector(`.popup__features`);
+  //   const features = ad.offer.features;
+  //   if (features) {
+  //     cardFeatures.innerHTML = ``;
+  //     features.forEach((feature) => {
+  //       const featureElement = document.createElement(`li`);
+  //       featureElement.classList.add(`popup__feature`, `popup__feature--${feature}`);
+  //       cardFeatures.append(featureElement);
+  //     });
+  //   } else {
+  //     cardFeatures.remove();
+  //   }
+
+  //   const cardDescription = cardElement.querySelector(`.popup__description`);
+  //   const description = ad.offer.description;
+  //   renderTextContent(description, cardDescription);
+
+  //   const cardPhotos = cardElement.querySelector(`.popup__photos`);
+  //   const photoTemplate = cardPhotos.querySelector(`.popup__photo`);
+  //   const photos = ad.offer.photos;
+  //   if (photos) {
+  //     cardPhotos.innerHTML = ``;
+  //     photos.forEach((photo) => {
+  //       const photoElement = photoTemplate.cloneNode(true);
+  //       photoElement.src = photo;
+  //       cardPhotos.append(photoElement);
+  //     });
+  //   } else {
+  //     cardPhotos.remove();
+  //   }
+
+  //   const cardAvatar = cardElement.querySelector(`.popup__avatar`);
+  //   const avatar = ad.author.avatar;
+  //   if (avatar) {
+  //     cardAvatar.src = avatar;
+  //   } else {
+  //     cardAvatar.remove();
+  //   }
+
+  //   mapFiltersContainer.before(cardElement);
+  // };
+
+  // const ads = generateMockAds(ADS_COUNT);
+  const adForm = document.querySelector(`.ad-form`);
+  const disabledElements = document.querySelectorAll(`.ad-form *, .map__filters *`);
+  for (const element of disabledElements) {
+    element.disabled = true;
+  }
+  const mainPin = document.querySelector(`.map__pin--main`);
+  const MAIN_PIN_FOOT_HEIGHT = 22;
+  const mainPinCenterX = Math.round(mainPin.offsetLeft + mainPin.offsetWidth / 2);
+  const mainPinCenterY = Math.round(mainPin.offsetTop + mainPin.offsetHeight / 2);
+  const mainPinBottomY = Math.round(mainPin.offsetTop + mainPin.offsetHeight);
+  const addressInput = adForm.querySelector(`#address`);
+  addressInput.value = `${mainPinCenterX}, ${mainPinCenterY}`;
+
+  /**
+   * Переводит страницу в активное состояние
+   */
+  const activatePage = () => {
+    map.classList.remove(`map--faded`);
+    adForm.classList.remove(`ad-form--disabled`);
+    for (const element of disabledElements) {
+      element.disabled = false;
+    }
+    addressInput.value = `${mainPinCenterX}, ${mainPinBottomY + MAIN_PIN_FOOT_HEIGHT}`;
+    checkRoomsCapacityValidity();
+  };
+
+  const onMainPinMousedown = (e) => {
+    if (e.button === 0) {
+      activatePage();
+      mainPin.removeEventListener(`mousedown`, onMainPinMousedown);
+      mainPin.removeEventListener(`keydown`, onMainPinKeydown);
+    }
+  };
+
+  const onMainPinKeydown = (e) => {
+    if (e.key === `Enter`) {
+      activatePage();
+      mainPin.removeEventListener(`mousedown`, onMainPinMousedown);
+      mainPin.removeEventListener(`keydown`, onMainPinKeydown);
+    }
+  };
+  mainPin.addEventListener(`mousedown`, onMainPinMousedown);
+  mainPin.addEventListener(`keydown`, onMainPinKeydown);
+
+  const roomsSelect = adForm.querySelector(`#room_number`);
+  const capacitySelect = adForm.querySelector(`#capacity`);
+  const MAX_ROOMS = 100;
+  const NO_GUESTS = 0;
+
+  /**
+   * Проверяет валидность полей количества комнат и гостей
+   */
+  const checkRoomsCapacityValidity = () => {
+    const rooms = +roomsSelect.value;
+    const guests = +capacitySelect.value;
+    if (rooms === MAX_ROOMS) {
+      if (guests === NO_GUESTS) {
+        capacitySelect.setCustomValidity(``);
+      } else {
+        capacitySelect.setCustomValidity(`Данное количество комнат не подходит для приема гостей`);
+      }
+    } else if (rooms < guests) {
+      capacitySelect.setCustomValidity(`Гостей не может быть больше чем комнат`);
+    } else {
+      if (guests === NO_GUESTS) {
+        capacitySelect.setCustomValidity(`Нужен хотя бы один гость`);
+      } else {
+        capacitySelect.setCustomValidity(``);
+      }
+    }
+  };
+
+  roomsSelect.addEventListener(`change`, checkRoomsCapacityValidity);
+  capacitySelect.addEventListener(`change`, checkRoomsCapacityValidity);
+
+  // renderPins(ads);
+  // renderCard(ads[0]);
 })();
