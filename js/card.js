@@ -96,18 +96,17 @@
 
     mapFiltersContainer.before(cardElement);
 
-    const newCard = document.querySelector(`.map__card`);
-    const newCardCloseButton = newCard.querySelector(`.popup__close`);
+    const cardCloseButton = cardElement.querySelector(`.popup__close`);
     const onCardEscPress = (e) => {
       if (e.key === `Escape`) {
         e.preventDefault();
-        newCard.remove();
+        cardElement.remove();
         document.removeEventListener(`keydown`, onCardEscPress);
       }
     };
     document.addEventListener(`keydown`, onCardEscPress);
-    newCardCloseButton.addEventListener(`click`, () => {
-      newCard.remove();
+    cardCloseButton.addEventListener(`click`, () => {
+      cardElement.remove();
     });
   };
 
