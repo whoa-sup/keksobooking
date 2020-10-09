@@ -1,7 +1,6 @@
 'use strict';
 
 (() => {
-  const ADS_COUNT = 8;
   const MAIN_PIN_FOOT_HEIGHT = 22;
   const ELEMENTS_TO_DISABLE = [
     `.ad-form`,
@@ -14,7 +13,7 @@
     `.map__filters select`,
     `.map__filters fieldset`,
   ];
-  const ads = window.data.generateAds(ADS_COUNT);
+  const main = document.querySelector(`main`);
   const map = document.querySelector(`.map`);
   const adForm = document.querySelector(`.ad-form`);
   const disabledElements = document.querySelectorAll(ELEMENTS_TO_DISABLE.join(`, `));
@@ -25,6 +24,56 @@
   const addressInput = adForm.querySelector(`#address`);
 
   addressInput.value = `${mainPinCenterX}, ${mainPinCenterY}`;
+
+  /**
+   * Добавляет в DOM сообщение об ошибке, по шаблону #error
+   * @param {String} message - текст сообщения
+   */
+  const renderError = (message) => {
+    const errorTemplate = document.querySelector(`#error`).content.querySelector(`.error`);
+    const errorElement = errorTemplate.cloneNode(true);
+    const errorMessage = errorElement.querySelector(`.error__message`);
+    const errorButton = errorElement.querySelector(`.error__button`);
+    errorMessage.textContent = message;
+    errorButton.addEventListener(`click`, () => {
+      errorElement.remove();
+    });
+    const onErrorButtonEscPress = (e) => {
+      if (e.key === `Escape`) {
+        e.preventDefault();
+        errorElement.remove();
+        document.removeEventListener(`keydown`, onErrorButtonEscPress);
+      }
+    };
+    document.addEventListener(`keydown`, onErrorButtonEscPress);
+    main.append(errorElement);
+  };
+
+  /**
+   * Отрисовывает на карте пины с объявлениями
+   * @param {Array} data - массив с данными
+   */
+  const onSuccessLoad = (data) => {
+    const ads = data;
+    window.pins.render(data);
+    const pins = Array.from(map.querySelectorAll(`.map__pin:not(.map__pin--main)`));
+
+    /**
+     * Обработчик клика по пину объявления, добавляет карточку объявления
+     * @param {Object} e - объект события
+     */
+    const onAdsPinClick = (e) => {
+      const target = e.target;
+      const isPinImage = pins.indexOf(target.parentElement);
+      const isPin = pins.indexOf(target);
+      if (target && isPin !== -1 || isPinImage !== -1) {
+        const cardIndex = isPin === -1 ? isPinImage : isPin;
+        window.card.render(ads[cardIndex]);
+      }
+    };
+    map.addEventListener(`click`, onAdsPinClick);
+  };
+
   /**
    * Переводит страницу в неактивное састояние
    */
@@ -51,6 +100,7 @@
     window.form.check();
     mainPin.removeEventListener(`mousedown`, onMainPinMousedown);
     mainPin.removeEventListener(`keydown`, onMainPinKeydown);
+    window.request.load(onSuccessLoad, renderError);
   };
 
   const onMainPinMousedown = (e) => {
@@ -68,24 +118,5 @@
   window.addEventListener(`load`, () => {
     disablePage();
   });
-
-  window.pins.render(ads);
-  const pins = Array.from(map.querySelectorAll(`.map__pin:not(.map__pin--main)`));
-
-  /**
-   * Обработчик клика по пину объявления, добавляет карточку объявления
-   * @param {Object} e - объект события
-   */
-  const onAdsPinClick = (e) => {
-    const target = e.target;
-    const isPinImage = pins.indexOf(target.parentElement);
-    const isPin = pins.indexOf(target);
-    if (target && isPin !== -1 || isPinImage !== -1) {
-      const cardIndex = isPin === -1 ? isPinImage : isPin;
-      window.card.render(ads[cardIndex]);
-    }
-  };
-
-  map.addEventListener(`click`, onAdsPinClick);
 
 })();

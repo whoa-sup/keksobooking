@@ -2,23 +2,23 @@
 
 (() => {
   const FORM_RULES = {
-    TITLE: {
-      MIN_LENGTH: 30,
-      MAX_LENGTH: 100,
+    title: {
+      minLength: 30,
+      maxLength: 100,
     },
-    PRICE: {
-      MAX_VALUE: 1000000,
+    price: {
+      maxValue: 1000000,
     },
-    TYPE: {
-      MIN_PRICE: {
+    type: {
+      minPrice: {
         bungalow: 0,
         flat: 1000,
         house: 5000,
         palace: 10000,
       },
     },
-    ROOMS: {
-      CAPACITY: {
+    rooms: {
+      capacity: {
         1: [1],
         2: [1, 2],
         3: [1, 2, 3],
@@ -42,13 +42,13 @@
   // title
 
   titleInput.required = true;
-  titleInput.minLength = FORM_RULES.TITLE.MIN_LENGTH;
-  titleInput.maxLength = FORM_RULES.TITLE.MAX_LENGTH;
+  titleInput.minLength = FORM_RULES.title.minLength;
+  titleInput.maxLength = FORM_RULES.title.maxLength;
 
   // price
 
   priceInput.required = true;
-  priceInput.max = FORM_RULES.PRICE.MAX_VALUE;
+  priceInput.max = FORM_RULES.price.maxValue;
 
   // type
 
@@ -57,8 +57,8 @@
    */
   const checkPriceValidity = () => {
     const value = typeSelect.value;
-    priceInput.min = FORM_RULES.TYPE.MIN_PRICE[value];
-    priceInput.placeholder = FORM_RULES.TYPE.MIN_PRICE[value];
+    priceInput.min = FORM_RULES.type.minPrice[value];
+    priceInput.placeholder = FORM_RULES.type.minPrice[value];
   };
 
   typeSelect.addEventListener(`change`, () => {
@@ -94,7 +94,7 @@
   const checkRoomsCapacityValidity = () => {
     const rooms = +roomsSelect.value;
     const guests = +capacitySelect.value;
-    if (!FORM_RULES.ROOMS.CAPACITY[rooms].includes(guests)) {
+    if (!FORM_RULES.rooms.capacity[rooms].includes(guests)) {
       capacitySelect.setCustomValidity(`Выберите другое количество гостей, не превышающее количества комнат`);
     } else {
       capacitySelect.setCustomValidity(``);
