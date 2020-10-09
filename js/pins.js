@@ -1,6 +1,8 @@
 'use strict';
 
 (() => {
+  const PIN_WIDTH = 50;
+  const PIN_HEIGHT = 70;
 
   /**
    * Отрисовывает метки объявлений на карте
@@ -9,8 +11,6 @@
   const renderPins = (ads) => {
     const pinTemplate = document.querySelector(`#pin`).content.querySelector(`.map__pin`);
     const pinsList = document.querySelector(`.map__pins`);
-    const PIN_WIDTH = 50;
-    const PIN_HEIGHT = 70;
 
     /**
      * Создает DOM-элемент метки объявления

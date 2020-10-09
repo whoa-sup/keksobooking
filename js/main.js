@@ -70,5 +70,22 @@
   });
 
   window.pins.render(ads);
-  window.card.render(ads[0]);
+  const pins = Array.from(map.querySelectorAll(`.map__pin:not(.map__pin--main)`));
+
+  /**
+   * Обработчик клика по пину объявления, добавляет карточку объявления
+   * @param {Object} e - объект события
+   */
+  const onAdsPinClick = (e) => {
+    const target = e.target;
+    const isPinImage = pins.indexOf(target.parentElement);
+    const isPin = pins.indexOf(target);
+    if (target && isPin !== -1 || isPinImage !== -1) {
+      const cardIndex = isPin === -1 ? isPinImage : isPin;
+      window.card.render(ads[cardIndex]);
+    }
+  };
+
+  map.addEventListener(`click`, onAdsPinClick);
+
 })();

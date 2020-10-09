@@ -14,6 +14,10 @@
    * @param {Object} ad объект объявления
    */
   const renderCard = (ad) => {
+    const previousCard = document.querySelector(`.map__card`);
+    if (previousCard) {
+      previousCard.remove();
+    }
     const cardTemplate = document.querySelector(`#card`).content.querySelector(`.map__card`);
     const cardElement = cardTemplate.cloneNode(true);
 
@@ -91,6 +95,19 @@
     }
 
     mapFiltersContainer.before(cardElement);
+
+    const cardCloseButton = cardElement.querySelector(`.popup__close`);
+    const onCardEscPress = (e) => {
+      if (e.key === `Escape`) {
+        e.preventDefault();
+        cardElement.remove();
+        document.removeEventListener(`keydown`, onCardEscPress);
+      }
+    };
+    document.addEventListener(`keydown`, onCardEscPress);
+    cardCloseButton.addEventListener(`click`, () => {
+      cardElement.remove();
+    });
   };
 
   window.card = {
