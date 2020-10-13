@@ -24,7 +24,7 @@
      * @param {event} e - объект события
      */
     const onErrorEscPress = (e) => {
-      window.util.onEscPress(e, closeError);
+      window.util.isEscPressed(e, closeError);
     };
 
     /**
@@ -54,7 +54,7 @@
      * @param {event} e - объект события
      */
     const onSuccessEscPress = (e) => {
-      window.util.onEscPress(e, closeSuccess);
+      window.util.isEscPressed(e, closeSuccess);
     };
 
     /**

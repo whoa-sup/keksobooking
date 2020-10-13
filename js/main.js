@@ -13,6 +13,10 @@
     `.map__filters fieldset`,
   ];
   const MAIN_PIN_FOOT_HEIGHT = 22;
+  const url = {
+    GET: `https://21.javascript.pages.academy/keksobooking/data`,
+    POST: `https://21.javascript.pages.academy/keksobooking`,
+  };
   const coordinates = {
     MIN_Y: 130,
     MAX_Y: 630,
@@ -72,6 +76,13 @@
     };
     map.addEventListener(`click`, onAdsPinClick);
   };
+  /**
+   * При ошибке загрузки выводит сообщение
+   * @param {String} message - текст сообщения об ошибке
+   */
+  const onErrorLoad = (message) => {
+    window.message.addError(message);
+  };
 
   /**
    * Переводит страницу в неактивное састояние
@@ -111,7 +122,9 @@
     for (const element of disabledElements) {
       element.disabled = false;
     }
-    window.request.load(onSuccessLoad, window.message.addError);
+    window.request.send(`GET`, url.GET)
+      .then(onSuccessLoad)
+      .catch(onErrorLoad);
     // Event listeners
     mainPin.removeEventListener(`keydown`, onMainPinKeydown);
     adForm.addEventListener(`submit`, onAdFormSubmit);
@@ -183,12 +196,22 @@
   };
 
   /**
+   * При успешной отправке данных на сервер переводит страницу в неактивное состояние
+   * и добавляет сообщение об отправке в DOM
+   */
+  const onErrorUpload = () => {
+    window.message.addError();
+  };
+
+  /**
    * Отправляет данные из формы с помощью xhr
    * @param {Object} e - объект события
    */
   const onAdFormSubmit = (e) => {
     e.preventDefault();
-    window.request.upload(new FormData(adForm), onSuccessUpload, window.message.addError);
+    window.request.send(`POST`, url.POST, new FormData(adForm))
+    .then(onSuccessUpload)
+    .catch(onErrorUpload);
   };
 
   /**

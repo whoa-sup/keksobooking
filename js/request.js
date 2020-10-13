@@ -1,62 +1,36 @@
 'use strict';
 
 (() => {
-  const URL = {
-    GET: `https://21.javascript.pages.academy/keksobooking/data`,
-    POST: `https://21.javascript.pages.academy/keksobooking`,
-  };
   const STATUS_CODE = {
     OK: 200,
   };
   const TIMEOUT_IN_MS = 10000;
 
-  const load = (onSuccess, onError) => {
-    const xhr = new XMLHttpRequest();
-    xhr.responseType = `json`;
-    xhr.open(`GET`, URL.GET);
+  const sendRequest = (method, address, data) => {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.responseType = `json`;
+      xhr.open(method, address);
+      xhr.addEventListener(`load`, () => {
+        if (xhr.status === STATUS_CODE.OK) {
+          resolve(xhr.response);
+        } else {
+          reject(`Статус ответа: ` + xhr.status + ` ` + xhr.statusText);
+        }
+      });
+      xhr.addEventListener(`error`, function () {
+        reject(`Произошла ошибка соединения`);
+      });
+      xhr.addEventListener(`timeout`, function () {
+        reject(`Запрос не успел выполниться за ` + xhr.timeout + `мс`);
+      });
 
-    xhr.addEventListener(`load`, () => {
-      if (xhr.status === STATUS_CODE.OK) {
-        onSuccess(xhr.response);
-      } else {
-        onError(`Статус ответа: ` + xhr.status + ` ` + xhr.statusText);
-      }
+      xhr.timeout = TIMEOUT_IN_MS;
+      xhr.send(data);
     });
-    xhr.addEventListener(`error`, function () {
-      onError(`Произошла ошибка соединения`);
-    });
-    xhr.addEventListener(`timeout`, function () {
-      onError(`Запрос не успел выполниться за ` + xhr.timeout + `мс`);
-    });
-
-    xhr.timeout = TIMEOUT_IN_MS;
-    xhr.send();
-  };
-
-  const upload = (data, onSuccess, onError) => {
-    const xhr = new XMLHttpRequest();
-    xhr.responseType = `json`;
-    xhr.open(`POST`, URL.POST);
-
-    xhr.addEventListener(`load`, () => {
-      if (xhr.status === STATUS_CODE.OK) {
-        onSuccess(xhr.response);
-      } else {
-        onError();
-      }
-    });
-    xhr.addEventListener(`error`, function () {
-      onError();
-    });
-    xhr.addEventListener(`timeout`, function () {
-      onError();
-    });
-
-    xhr.send(data);
   };
 
   window.request = {
-    load: load,
-    upload: upload,
+    send: sendRequest
   };
 })();

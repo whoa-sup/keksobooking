@@ -1,18 +1,18 @@
 'use strict';
 
 (() => {
-  const FLAT_TYPES = {
+  const flatTypes = {
     flat: `Квартира`,
     bungalow: `Бунгало`,
     house: `Дом`,
     palace: `Дворец`,
   };
   const mapFiltersContainer = document.querySelector(`.map__filters-container`);
-  let isCard = document.querySelector(`.map__card`);
+  let isCardExist;
 
   const removeCard = () => {
-    if (isCard) {
-      isCard.remove();
+    if (isCardExist) {
+      isCardExist.remove();
     }
   };
 
@@ -39,7 +39,7 @@
 
     const cardType = cardElement.querySelector(`.popup__type`);
     const type = ad.offer.type;
-    window.util.renderTextContent(type, cardType, FLAT_TYPES[type]);
+    window.util.renderTextContent(type, cardType, flatTypes[type]);
 
     const cardCapacity = cardElement.querySelector(`.popup__text--capacity`);
     const rooms = ad.offer.rooms;
@@ -110,7 +110,7 @@
     cardCloseButton.addEventListener(`click`, () => {
       removeCard();
     });
-    isCard = cardElement;
+    isCardExist = cardElement;
     mapFiltersContainer.before(cardElement);
   };
 
