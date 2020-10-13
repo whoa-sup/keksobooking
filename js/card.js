@@ -8,15 +8,15 @@
     palace: `Дворец`,
   };
   const mapFiltersContainer = document.querySelector(`.map__filters-container`);
+  let isCard = false;
 
   /**
    * Создает DOM-элемент карточки объявления
    * @param {Object} ad объект объявления
    */
   const renderCard = (ad) => {
-    const previousCard = document.querySelector(`.map__card`);
-    if (previousCard) {
-      previousCard.remove();
+    if (isCard) {
+      document.querySelector(`.map__card`).remove();
     }
     const cardTemplate = document.querySelector(`#card`).content.querySelector(`.map__card`);
     const cardElement = cardTemplate.cloneNode(true);
@@ -94,20 +94,23 @@
       cardAvatar.remove();
     }
 
-    mapFiltersContainer.before(cardElement);
-
     const cardCloseButton = cardElement.querySelector(`.popup__close`);
     const onCardEscPress = (e) => {
       if (e.key === `Escape`) {
         e.preventDefault();
         cardElement.remove();
         document.removeEventListener(`keydown`, onCardEscPress);
+        isCard = false;
       }
     };
     document.addEventListener(`keydown`, onCardEscPress);
     cardCloseButton.addEventListener(`click`, () => {
       cardElement.remove();
+      isCard = false;
     });
+
+    mapFiltersContainer.before(cardElement);
+    isCard = true;
   };
 
   window.card = {

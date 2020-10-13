@@ -60,6 +60,7 @@
     priceInput.min = FORM_RULES.type.minPrice[value];
     priceInput.placeholder = FORM_RULES.type.minPrice[value];
   };
+  checkPriceValidity();
 
   typeSelect.addEventListener(`change`, () => {
     checkPriceValidity();
@@ -100,6 +101,7 @@
       capacitySelect.setCustomValidity(``);
     }
   };
+  checkRoomsCapacityValidity();
 
   roomsSelect.addEventListener(`change`, () => {
     checkRoomsCapacityValidity();
@@ -107,8 +109,4 @@
   capacitySelect.addEventListener(`change`, () => {
     checkRoomsCapacityValidity();
   });
-
-  window.form = {
-    check: checkRoomsCapacityValidity,
-  };
 })();

@@ -1,7 +1,6 @@
 'use strict';
 
 (() => {
-  const MAIN_PIN_FOOT_HEIGHT = 22;
   const ELEMENTS_TO_DISABLE = [
     `.ad-form`,
     `.ad-form fieldset`,
@@ -13,17 +12,35 @@
     `.map__filters select`,
     `.map__filters fieldset`,
   ];
+  const MAIN_PIN_FOOT_HEIGHT = 22;
+  const COORDINATES = {
+    MIN_Y: 130,
+    MAX_Y: 630,
+  };
   const main = document.querySelector(`main`);
   const map = document.querySelector(`.map`);
   const adForm = document.querySelector(`.ad-form`);
   const disabledElements = document.querySelectorAll(ELEMENTS_TO_DISABLE.join(`, `));
   const mainPin = document.querySelector(`.map__pin--main`);
-  const mainPinCenterX = Math.round(mainPin.offsetLeft + mainPin.offsetWidth / 2);
-  const mainPinCenterY = Math.round(mainPin.offsetTop + mainPin.offsetHeight / 2);
-  const mainPinBottomY = Math.round(mainPin.offsetTop + mainPin.offsetHeight);
   const addressInput = adForm.querySelector(`#address`);
+  let isActive = false;
+  const mainPinLimits = {
+    minY: COORDINATES.MIN_Y - mainPin.offsetHeight - MAIN_PIN_FOOT_HEIGHT,
+    maxY: COORDINATES.MAX_Y - mainPin.offsetHeight - MAIN_PIN_FOOT_HEIGHT,
+    minX: 0 - mainPin.offsetWidth / 2,
+    maxX: map.offsetWidth - mainPin.offsetWidth / 2,
+  };
 
-  addressInput.value = `${mainPinCenterX}, ${mainPinCenterY}`;
+  /**
+   * Заполняет поле адреса в зависимости от того активна ли страница
+   * @param {Boolean} isPageActive - флаг указывающий на то активна ли страница
+   */
+  const fillAddress = (isPageActive) => {
+    const mainPinCenterX = Math.round(mainPin.offsetLeft + mainPin.offsetWidth / 2);
+    const mainPinCenterY = Math.round(mainPin.offsetTop + mainPin.offsetHeight / 2);
+    const mainPinBottomY = Math.round(mainPin.offsetTop + mainPin.offsetHeight);
+    addressInput.value = isPageActive ? `${mainPinCenterX}, ${mainPinBottomY + MAIN_PIN_FOOT_HEIGHT}` : `${mainPinCenterX}, ${mainPinCenterY}`;
+  };
 
   /**
    * Добавляет в DOM сообщение об ошибке, по шаблону #error
@@ -78,42 +95,84 @@
    * Переводит страницу в неактивное састояние
    */
   const disablePage = () => {
+    isActive = false;
     map.classList.add(`map--faded`);
     adForm.classList.add(`ad-form--disabled`);
     for (const element of disabledElements) {
       element.disabled = true;
     }
-    mainPin.addEventListener(`mousedown`, onMainPinMousedown);
     mainPin.addEventListener(`keydown`, onMainPinKeydown);
+    fillAddress(isActive);
   };
 
   /**
    * Переводит страницу в активное состояние
    */
   const activatePage = () => {
+    isActive = true;
     map.classList.remove(`map--faded`);
     adForm.classList.remove(`ad-form--disabled`);
     for (const element of disabledElements) {
       element.disabled = false;
     }
-    addressInput.value = `${mainPinCenterX}, ${mainPinBottomY + MAIN_PIN_FOOT_HEIGHT}`;
-    window.form.check();
-    mainPin.removeEventListener(`mousedown`, onMainPinMousedown);
     mainPin.removeEventListener(`keydown`, onMainPinKeydown);
     window.request.load(onSuccessLoad, renderError);
-  };
-
-  const onMainPinMousedown = (e) => {
-    if (e.button === 0) {
-      activatePage();
-    }
   };
 
   const onMainPinKeydown = (e) => {
     if (e.key === `Enter`) {
       activatePage();
+      fillAddress(isActive);
     }
   };
+
+  mainPin.addEventListener(`mousedown`, (e) => {
+    e.preventDefault();
+    if (e.button === 0 && !isActive) {
+      activatePage();
+    }
+
+    let startCoords = {
+      x: e.clientX,
+      y: e.clientY,
+    };
+
+    const onMouseMove = (moveEvt) => {
+      moveEvt.preventDefault();
+      const shift = {
+        x: startCoords.x - moveEvt.clientX,
+        y: startCoords.y - moveEvt.clientY,
+      };
+      startCoords = {
+        x: moveEvt.clientX,
+        y: moveEvt.clientY,
+      };
+      const newCoords = {
+        x: mainPin.offsetLeft - shift.x,
+        y: mainPin.offsetTop - shift.y,
+      };
+
+      newCoords.y = newCoords.y <= mainPinLimits.minY ? mainPinLimits.minY : newCoords.y;
+      newCoords.y = newCoords.y >= mainPinLimits.maxY ? mainPinLimits.maxY : newCoords.y;
+      newCoords.x = newCoords.x <= mainPinLimits.minX ? mainPinLimits.minX : newCoords.x;
+      newCoords.x = newCoords.x >= mainPinLimits.maxX ? mainPinLimits.maxX : newCoords.x;
+
+      mainPin.style.top = `${newCoords.y}px`;
+      mainPin.style.left = `${newCoords.x}px`;
+      fillAddress(isActive);
+
+    };
+
+    const onMouseUp = (upEvt) => {
+      upEvt.preventDefault();
+      document.removeEventListener(`mousemove`, onMouseMove);
+      document.removeEventListener(`mouseup`, onMouseUp);
+      fillAddress(isActive);
+    };
+
+    document.addEventListener(`mousemove`, onMouseMove);
+    document.addEventListener(`mouseup`, onMouseUp);
+  });
 
   window.addEventListener(`load`, () => {
     disablePage();
