@@ -3,6 +3,7 @@
 (() => {
   const PIN_WIDTH = 50;
   const PIN_HEIGHT = 70;
+  const pinsList = document.querySelector(`.map__pins`);
 
   /**
    * Отрисовывает метки объявлений на карте
@@ -10,7 +11,6 @@
    */
   const renderPins = (ads) => {
     const pinTemplate = document.querySelector(`#pin`).content.querySelector(`.map__pin`);
-    const pinsList = document.querySelector(`.map__pins`);
 
     /**
      * Создает DOM-элемент метки объявления
@@ -36,7 +36,14 @@
     pinsList.append(adsFragment);
   };
 
+  const removePins = () => {
+    while (!pinsList.lastElementChild.classList.contains(`map__pin--main`)) {
+      pinsList.lastChild.remove();
+    }
+  };
+
   window.pins = {
     render: renderPins,
+    remove: removePins,
   };
 })();

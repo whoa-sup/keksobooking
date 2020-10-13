@@ -59,11 +59,24 @@
     }
   };
 
+  /**
+   * При нажатии на ESC вызывает cb
+   * @param {event} e - объект события
+   * @param {function} cb - callback function
+   */
+  const onEscPress = (e, cb) => {
+    if (e.key === `Escape`) {
+      e.preventDefault();
+      cb();
+    }
+  };
+
   window.util = {
     getRandomNumberFromRange: getRandomNumberFromRange,
     getRandomArrayElement: getRandomArrayElement,
     shuffleArray: shuffleArray,
     copyArrayRandomElements: copyArrayRandomElements,
     renderTextContent: renderTextContent,
+    onEscPress: onEscPress,
   };
 })();

@@ -3,6 +3,7 @@
 (() => {
   const URL = {
     GET: `https://21.javascript.pages.academy/keksobooking/data`,
+    POST: `https://21.javascript.pages.academy/keksobooking`,
   };
   const STATUS_CODE = {
     OK: 200,
@@ -32,7 +33,30 @@
     xhr.send();
   };
 
+  const upload = (data, onSuccess, onError) => {
+    const xhr = new XMLHttpRequest();
+    xhr.responseType = `json`;
+    xhr.open(`POST`, URL.POST);
+
+    xhr.addEventListener(`load`, () => {
+      if (xhr.status === STATUS_CODE.OK) {
+        onSuccess(xhr.response);
+      } else {
+        onError();
+      }
+    });
+    xhr.addEventListener(`error`, function () {
+      onError();
+    });
+    xhr.addEventListener(`timeout`, function () {
+      onError();
+    });
+
+    xhr.send(data);
+  };
+
   window.request = {
     load: load,
+    upload: upload,
   };
 })();
