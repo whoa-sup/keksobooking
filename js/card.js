@@ -10,14 +10,19 @@
   const mapFiltersContainer = document.querySelector(`.map__filters-container`);
   let isCard = false;
 
+  const removeCard = () => {
+    if (isCard) {
+      document.querySelector(`.map__card`).remove();
+      isCard = false;
+    }
+  };
+
   /**
    * Создает DOM-элемент карточки объявления
    * @param {Object} ad объект объявления
    */
   const renderCard = (ad) => {
-    if (isCard) {
-      document.querySelector(`.map__card`).remove();
-    }
+    removeCard();
     const cardTemplate = document.querySelector(`#card`).content.querySelector(`.map__card`);
     const cardElement = cardTemplate.cloneNode(true);
 
@@ -115,5 +120,6 @@
 
   window.card = {
     render: renderCard,
+    remove: removeCard,
   };
 })();

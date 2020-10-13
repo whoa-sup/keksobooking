@@ -17,18 +17,24 @@
     MIN_Y: 130,
     MAX_Y: 630,
   };
-  const main = document.querySelector(`main`);
   const map = document.querySelector(`.map`);
+  const filtersForm = map.querySelector(`.map__filters`);
   const adForm = document.querySelector(`.ad-form`);
+  const adFormResetButton = adForm.querySelector(`.ad-form__reset`);
   const disabledElements = document.querySelectorAll(ELEMENTS_TO_DISABLE.join(`, `));
   const mainPin = document.querySelector(`.map__pin--main`);
   const addressInput = adForm.querySelector(`#address`);
   let isActive = false;
+
   const mainPinLimits = {
     minY: COORDINATES.MIN_Y - mainPin.offsetHeight - MAIN_PIN_FOOT_HEIGHT,
     maxY: COORDINATES.MAX_Y - mainPin.offsetHeight - MAIN_PIN_FOOT_HEIGHT,
     minX: 0 - mainPin.offsetWidth / 2,
     maxX: map.offsetWidth - mainPin.offsetWidth / 2,
+  };
+  const mainPinDefaultPosition = {
+    left: mainPin.style.left,
+    top: mainPin.style.top,
   };
 
   /**
@@ -40,30 +46,6 @@
     const mainPinCenterY = Math.round(mainPin.offsetTop + mainPin.offsetHeight / 2);
     const mainPinBottomY = Math.round(mainPin.offsetTop + mainPin.offsetHeight);
     addressInput.value = isPageActive ? `${mainPinCenterX}, ${mainPinBottomY + MAIN_PIN_FOOT_HEIGHT}` : `${mainPinCenterX}, ${mainPinCenterY}`;
-  };
-
-  /**
-   * Добавляет в DOM сообщение об ошибке, по шаблону #error
-   * @param {String} message - текст сообщения
-   */
-  const renderError = (message) => {
-    const errorTemplate = document.querySelector(`#error`).content.querySelector(`.error`);
-    const errorElement = errorTemplate.cloneNode(true);
-    const errorMessage = errorElement.querySelector(`.error__message`);
-    const errorButton = errorElement.querySelector(`.error__button`);
-    errorMessage.textContent = message;
-    errorButton.addEventListener(`click`, () => {
-      errorElement.remove();
-    });
-    const onErrorButtonEscPress = (e) => {
-      if (e.key === `Escape`) {
-        e.preventDefault();
-        errorElement.remove();
-        document.removeEventListener(`keydown`, onErrorButtonEscPress);
-      }
-    };
-    document.addEventListener(`keydown`, onErrorButtonEscPress);
-    main.append(errorElement);
   };
 
   /**
@@ -96,13 +78,27 @@
    */
   const disablePage = () => {
     isActive = false;
+    // Добавляем классы
     map.classList.add(`map--faded`);
     adForm.classList.add(`ad-form--disabled`);
     for (const element of disabledElements) {
       element.disabled = true;
     }
-    mainPin.addEventListener(`keydown`, onMainPinKeydown);
+    // Сбрасываем формы
+    adForm.reset();
+    filtersForm.reset();
+    // Возвращаем пин
+    mainPin.style.left = mainPinDefaultPosition.left;
+    mainPin.style.top = mainPinDefaultPosition.top;
+    // Корректируем адрес
     fillAddress(isActive);
+    // Удаляем пины и карточки
+    window.pins.remove();
+    window.card.remove();
+    // Event Listeners
+    mainPin.addEventListener(`keydown`, onMainPinKeydown);
+    adForm.removeEventListener(`submit`, onAdFormSubmit);
+    adFormResetButton.removeEventListener(`click`, onResetButtonClick);
   };
 
   /**
@@ -115,8 +111,11 @@
     for (const element of disabledElements) {
       element.disabled = false;
     }
+    window.request.load(onSuccessLoad, window.message.addError);
+    // Event listeners
     mainPin.removeEventListener(`keydown`, onMainPinKeydown);
-    window.request.load(onSuccessLoad, renderError);
+    adForm.addEventListener(`submit`, onAdFormSubmit);
+    adFormResetButton.addEventListener(`click`, onResetButtonClick);
   };
 
   const onMainPinKeydown = (e) => {
@@ -173,6 +172,31 @@
     document.addEventListener(`mousemove`, onMouseMove);
     document.addEventListener(`mouseup`, onMouseUp);
   });
+
+  /**
+   * При успешной отправке данных на сервер переводит страницу в неактивное состояние
+   * и добавляет сообщение об отправке в DOM
+   */
+  const onSuccessUpload = () => {
+    window.message.addSuccess();
+    disablePage();
+  };
+
+  /**
+   * Отправляет данные из формы с помощью xhr
+   * @param {Object} e - объект события
+   */
+  const onAdFormSubmit = (e) => {
+    e.preventDefault();
+    window.request.upload(new FormData(adForm), onSuccessUpload, window.message.addError);
+  };
+
+  /**
+   * При клике на кнопку сброса переводит страницу в неактивное состояние
+   */
+  const onResetButtonClick = () => {
+    disablePage();
+  };
 
   window.addEventListener(`load`, () => {
     disablePage();

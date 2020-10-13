@@ -38,6 +38,8 @@
   const priceInput = adForm.querySelector(`#price`);
   const avatarInput = adForm.querySelector(`#avatar`);
   const imagesInput = adForm.querySelector(`#avatar`);
+  const formSubmitButton = adForm.querySelector(`ad-form__submit`);
+  const formResetButton = adForm.querySelector(`ad-form__reset`);
 
   // title
 
