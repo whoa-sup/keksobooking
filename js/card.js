@@ -8,12 +8,11 @@
     palace: `Дворец`,
   };
   const mapFiltersContainer = document.querySelector(`.map__filters-container`);
-  let isCard = false;
+  let isCard = document.querySelector(`.map__card`);
 
   const removeCard = () => {
     if (isCard) {
-      document.querySelector(`.map__card`).remove();
-      isCard = false;
+      isCard.remove();
     }
   };
 
@@ -103,19 +102,16 @@
     const onCardEscPress = (e) => {
       if (e.key === `Escape`) {
         e.preventDefault();
-        cardElement.remove();
         document.removeEventListener(`keydown`, onCardEscPress);
-        isCard = false;
+        removeCard();
       }
     };
     document.addEventListener(`keydown`, onCardEscPress);
     cardCloseButton.addEventListener(`click`, () => {
-      cardElement.remove();
-      isCard = false;
+      removeCard();
     });
-
+    isCard = cardElement;
     mapFiltersContainer.before(cardElement);
-    isCard = true;
   };
 
   window.card = {
