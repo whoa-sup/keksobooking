@@ -13,7 +13,7 @@
     `.map__filters fieldset`,
   ];
   const MAIN_PIN_FOOT_HEIGHT = 22;
-  const COORDINATES = {
+  const coordinates = {
     MIN_Y: 130,
     MAX_Y: 630,
   };
@@ -27,8 +27,8 @@
   let isActive = false;
 
   const mainPinLimits = {
-    minY: COORDINATES.MIN_Y - mainPin.offsetHeight - MAIN_PIN_FOOT_HEIGHT,
-    maxY: COORDINATES.MAX_Y - mainPin.offsetHeight - MAIN_PIN_FOOT_HEIGHT,
+    minY: coordinates.MIN_Y - mainPin.offsetHeight - MAIN_PIN_FOOT_HEIGHT,
+    maxY: coordinates.MAX_Y - mainPin.offsetHeight - MAIN_PIN_FOOT_HEIGHT,
     minX: 0 - mainPin.offsetWidth / 2,
     maxX: map.offsetWidth - mainPin.offsetWidth / 2,
   };
