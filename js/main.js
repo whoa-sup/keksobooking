@@ -1,23 +1,27 @@
 'use strict';
 
 (() => {
-  const ELEMENTS_TO_DISABLE = [
-    `.ad-form`,
-    `.ad-form fieldset`,
-    `.ad-form input`,
-    `.ad-form textarea`,
-    `.ad-form select`,
-    `.ad-form button`,
-    `.map__filters input`,
-    `.map__filters select`,
-    `.map__filters fieldset`,
-  ];
+  const DisableClasses = {
+    AD_FORM: [
+      `.ad-form`,
+      `.ad-form fieldset`,
+      `.ad-form input`,
+      `.ad-form textarea`,
+      `.ad-form select`,
+      `.ad-form button`,
+    ],
+    MAP_FILTERS: [
+      `.map__filters input`,
+      `.map__filters select`,
+      `.map__filters fieldset`,
+    ],
+  };
   const MAIN_PIN_FOOT_HEIGHT = 22;
-  const url = {
+  const Url = {
     GET: `https://21.javascript.pages.academy/keksobooking/data`,
     POST: `https://21.javascript.pages.academy/keksobooking`,
   };
-  const coordinates = {
+  const Coordinates = {
     MIN_Y: 130,
     MAX_Y: 630,
   };
@@ -25,14 +29,15 @@
   const filtersForm = map.querySelector(`.map__filters`);
   const adForm = document.querySelector(`.ad-form`);
   const adFormResetButton = adForm.querySelector(`.ad-form__reset`);
-  const disabledElements = document.querySelectorAll(ELEMENTS_TO_DISABLE.join(`, `));
+  const adFormElementsToDisable = document.querySelectorAll(DisableClasses.AD_FORM.join(`, `));
+  const mapFiltersElementsToDisable = document.querySelectorAll(DisableClasses.MAP_FILTERS.join(`, `));
   const mainPin = document.querySelector(`.map__pin--main`);
   const addressInput = adForm.querySelector(`#address`);
   let isActive = false;
 
   const mainPinLimits = {
-    minY: coordinates.MIN_Y - mainPin.offsetHeight - MAIN_PIN_FOOT_HEIGHT,
-    maxY: coordinates.MAX_Y - mainPin.offsetHeight - MAIN_PIN_FOOT_HEIGHT,
+    minY: Coordinates.MIN_Y - mainPin.offsetHeight - MAIN_PIN_FOOT_HEIGHT,
+    maxY: Coordinates.MAX_Y - mainPin.offsetHeight - MAIN_PIN_FOOT_HEIGHT,
     minX: 0 - mainPin.offsetWidth / 2,
     maxX: map.offsetWidth - mainPin.offsetWidth / 2,
   };
@@ -57,9 +62,11 @@
    * @param {Array} data - массив с данными
    */
   const onSuccessLoad = (data) => {
-    const ads = data;
-    window.pins.render(data);
-    const pins = Array.from(map.querySelectorAll(`.map__pin:not(.map__pin--main)`));
+    for (const element of mapFiltersElementsToDisable) {
+      element.disabled = false;
+    }
+    const ads = window.filter(data);
+    window.pins.render(ads);
 
     /**
      * Обработчик клика по пину объявления, добавляет карточку объявления
@@ -67,15 +74,30 @@
      */
     const onAdsPinClick = (e) => {
       const target = e.target;
-      const isPinImage = pins.indexOf(target.parentElement);
-      const isPin = pins.indexOf(target);
-      if (target && isPin !== -1 || isPinImage !== -1) {
-        const cardIndex = isPin === -1 ? isPinImage : isPin;
-        window.card.render(ads[cardIndex]);
+      const isPin = target.classList.contains(`map__pin`);
+      const isMainPin = target.classList.contains(`map__pin--main`);
+      const isPinImage = target.parentElement.classList.contains(`map__pin`);
+      const isMainPinImage = target.parentElement.classList.contains(`map__pin--main`);
+      if (!isMainPin && !isMainPinImage && (isPin || isPinImage)) {
+        window.card.render(isPin ? target.data : target.parentElement.data);
       }
     };
     map.addEventListener(`click`, onAdsPinClick);
+
+    /**
+     * Обработчик смены фильтров
+     * Удаляет пины и карточку, затем перерисовывает по отфильтрованнным данным
+     */
+    const onFilterFormChange = () => {
+      window.pins.remove();
+      window.card.remove();
+      const newAds = window.filter(data);
+      window.pins.render(newAds);
+    };
+
+    filtersForm.addEventListener(`change`, onFilterFormChange);
   };
+
   /**
    * При ошибке загрузки выводит сообщение
    * @param {String} message - текст сообщения об ошибке
@@ -92,7 +114,10 @@
     // Добавляем классы
     map.classList.add(`map--faded`);
     adForm.classList.add(`ad-form--disabled`);
-    for (const element of disabledElements) {
+    for (const element of adFormElementsToDisable) {
+      element.disabled = true;
+    }
+    for (const element of mapFiltersElementsToDisable) {
       element.disabled = true;
     }
     // Сбрасываем формы
@@ -119,10 +144,10 @@
     isActive = true;
     map.classList.remove(`map--faded`);
     adForm.classList.remove(`ad-form--disabled`);
-    for (const element of disabledElements) {
+    for (const element of adFormElementsToDisable) {
       element.disabled = false;
     }
-    window.request.send(`GET`, url.GET)
+    window.request.send(`GET`, Url.GET)
       .then(onSuccessLoad)
       .catch(onErrorLoad);
     // Event listeners
@@ -209,7 +234,7 @@
    */
   const onAdFormSubmit = (e) => {
     e.preventDefault();
-    window.request.send(`POST`, url.POST, new FormData(adForm))
+    window.request.send(`POST`, Url.POST, new FormData(adForm))
     .then(onSuccessUpload)
     .catch(onErrorUpload);
   };

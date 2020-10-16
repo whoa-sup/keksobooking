@@ -1,7 +1,7 @@
 'use strict';
 
 (() => {
-  const formRules = {
+  const FormRules = {
     title: {
       MIN_LENGTH: 30,
       MAX_LENGTH: 100,
@@ -42,13 +42,13 @@
   // title
 
   titleInput.required = true;
-  titleInput.minLength = formRules.title.MIN_LENGTH;
-  titleInput.maxLength = formRules.title.MAX_LENGTH;
+  titleInput.minLength = FormRules.title.MIN_LENGTH;
+  titleInput.maxLength = FormRules.title.MAX_LENGTH;
 
   // price
 
   priceInput.required = true;
-  priceInput.max = formRules.price.MAX_VALUE;
+  priceInput.max = FormRules.price.MAX_VALUE;
 
   // type
 
@@ -57,8 +57,8 @@
    */
   const checkPriceValidity = () => {
     const value = typeSelect.value;
-    priceInput.min = formRules.type.minPrice[value];
-    priceInput.placeholder = formRules.type.minPrice[value];
+    priceInput.min = FormRules.type.minPrice[value];
+    priceInput.placeholder = FormRules.type.minPrice[value];
   };
   checkPriceValidity();
 
@@ -95,7 +95,7 @@
   const checkRoomsCapacityValidity = () => {
     const rooms = +roomsSelect.value;
     const guests = +capacitySelect.value;
-    if (!formRules.rooms.capacity[rooms].includes(guests)) {
+    if (!FormRules.rooms.capacity[rooms].includes(guests)) {
       capacitySelect.setCustomValidity(`Выберите другое количество гостей, не превышающее количества комнат`);
     } else {
       capacitySelect.setCustomValidity(``);
