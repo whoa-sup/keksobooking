@@ -25,6 +25,7 @@
       pinElement.style.top = `${ad.location.y - PIN_HEIGHT}px`;
       pinImage.src = ad.author.avatar;
       pinImage.alt = ad.offer.title;
+      pinElement.data = ad;
 
       return pinElement;
     };

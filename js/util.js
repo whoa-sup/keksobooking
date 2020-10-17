@@ -64,7 +64,7 @@
    * @param {event} e - объект события
    * @param {function} cb - callback function
    */
-  const onEscPress = (e, cb) => {
+  const isEscPressed = (e, cb) => {
     if (e.key === `Escape`) {
       e.preventDefault();
       cb();
@@ -77,6 +77,6 @@
     shuffleArray: shuffleArray,
     copyArrayRandomElements: copyArrayRandomElements,
     renderTextContent: renderTextContent,
-    onEscPress: onEscPress,
+    isEscPressed: isEscPressed,
   };
 })();

@@ -1,13 +1,13 @@
 'use strict';
 
 (() => {
-  const FORM_RULES = {
+  const FormRules = {
     title: {
-      minLength: 30,
-      maxLength: 100,
+      MIN_LENGTH: 30,
+      MAX_LENGTH: 100,
     },
     price: {
-      maxValue: 1000000,
+      MAX_VALUE: 1000000,
     },
     type: {
       minPrice: {
@@ -38,19 +38,17 @@
   const priceInput = adForm.querySelector(`#price`);
   const avatarInput = adForm.querySelector(`#avatar`);
   const imagesInput = adForm.querySelector(`#avatar`);
-  const formSubmitButton = adForm.querySelector(`ad-form__submit`);
-  const formResetButton = adForm.querySelector(`ad-form__reset`);
 
   // title
 
   titleInput.required = true;
-  titleInput.minLength = FORM_RULES.title.minLength;
-  titleInput.maxLength = FORM_RULES.title.maxLength;
+  titleInput.minLength = FormRules.title.MIN_LENGTH;
+  titleInput.maxLength = FormRules.title.MAX_LENGTH;
 
   // price
 
   priceInput.required = true;
-  priceInput.max = FORM_RULES.price.maxValue;
+  priceInput.max = FormRules.price.MAX_VALUE;
 
   // type
 
@@ -59,8 +57,8 @@
    */
   const checkPriceValidity = () => {
     const value = typeSelect.value;
-    priceInput.min = FORM_RULES.type.minPrice[value];
-    priceInput.placeholder = FORM_RULES.type.minPrice[value];
+    priceInput.min = FormRules.type.minPrice[value];
+    priceInput.placeholder = FormRules.type.minPrice[value];
   };
   checkPriceValidity();
 
@@ -97,7 +95,7 @@
   const checkRoomsCapacityValidity = () => {
     const rooms = +roomsSelect.value;
     const guests = +capacitySelect.value;
-    if (!FORM_RULES.rooms.capacity[rooms].includes(guests)) {
+    if (!FormRules.rooms.capacity[rooms].includes(guests)) {
       capacitySelect.setCustomValidity(`Выберите другое количество гостей, не превышающее количества комнат`);
     } else {
       capacitySelect.setCustomValidity(``);
