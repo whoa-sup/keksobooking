@@ -3,6 +3,22 @@
 (() => {
 
   /**
+   * Debounce
+   * @param {Function} func - функция к которой применяется debounce
+   * @param {Number} delay - задержка debounce в ms
+   * @return {Function} функция которая применяется не чаще чем delay
+   */
+  const debounce = (func, delay) => {
+    let timerId;
+
+    return (...args) => {
+      const boundFunc = func.bind(null, ...args);
+      clearTimeout(timerId);
+      timerId = setTimeout(boundFunc, delay);
+    };
+  };
+
+  /**
    * Возвращает случайное целое число в заданном промежутке
    * @param {number} min - минимальное значение диапазона
    * @param {number} max - максимальное значение диапазона
@@ -72,6 +88,7 @@
   };
 
   window.util = {
+    debounce: debounce,
     getRandomNumberFromRange: getRandomNumberFromRange,
     getRandomArrayElement: getRandomArrayElement,
     shuffleArray: shuffleArray,
