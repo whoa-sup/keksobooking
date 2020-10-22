@@ -1,8 +1,9 @@
 'use strict';
 
 (() => {
+  const DEBOUNCE_INTERVAL = 500; // ms
   const DisableClasses = {
-    AD_FORM: [
+    AD_FORM_ELEMENTS: [
       `.ad-form`,
       `.ad-form fieldset`,
       `.ad-form input`,
@@ -10,13 +11,13 @@
       `.ad-form select`,
       `.ad-form button`,
     ],
-    MAP_FILTERS: [
+    MAP_FILTERS_ELEMENTS: [
       `.map__filters input`,
       `.map__filters select`,
       `.map__filters fieldset`,
     ],
   };
-  const MAIN_PIN_FOOT_HEIGHT = 22;
+  const MAIN_PIN_FOOT_HEIGHT = 22; // px
   const Url = {
     GET: `https://21.javascript.pages.academy/keksobooking/data`,
     POST: `https://21.javascript.pages.academy/keksobooking`,
@@ -29,8 +30,8 @@
   const filtersForm = map.querySelector(`.map__filters`);
   const adForm = document.querySelector(`.ad-form`);
   const adFormResetButton = adForm.querySelector(`.ad-form__reset`);
-  const adFormElementsToDisable = document.querySelectorAll(DisableClasses.AD_FORM.join(`, `));
-  const mapFiltersElementsToDisable = document.querySelectorAll(DisableClasses.MAP_FILTERS.join(`, `));
+  const adFormElementsToDisable = document.querySelectorAll(DisableClasses.AD_FORM_ELEMENTS.join(`, `));
+  const mapFiltersElementsToDisable = document.querySelectorAll(DisableClasses.MAP_FILTERS_ELEMENTS.join(`, `));
   const mainPin = document.querySelector(`.map__pin--main`);
   const addressInput = adForm.querySelector(`#address`);
   let isActive = false;
@@ -88,12 +89,12 @@
      * Обработчик смены фильтров
      * Удаляет пины и карточку, затем перерисовывает по отфильтрованнным данным
      */
-    const onFilterFormChange = () => {
+    const onFilterFormChange = window.util.debounce(() => {
       window.pins.remove();
       window.card.remove();
       const newAds = window.filter(data);
       window.pins.render(newAds);
-    };
+    }, DEBOUNCE_INTERVAL);
 
     filtersForm.addEventListener(`change`, onFilterFormChange);
   };
