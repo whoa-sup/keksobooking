@@ -18,6 +18,9 @@
      * @return {HTMLElement} элемент метки объявления
      */
     const renderPin = (ad) => {
+      if (!ad.offer) {
+        return false;
+      }
       const pinElement = pinTemplate.cloneNode(true);
       const pinImage = pinElement.querySelector(`img`);
 

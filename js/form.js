@@ -37,7 +37,10 @@
   const addressInput = adForm.querySelector(`#address`);
   const priceInput = adForm.querySelector(`#price`);
   const avatarInput = adForm.querySelector(`#avatar`);
-  const imagesInput = adForm.querySelector(`#avatar`);
+  const imagesInput = adForm.querySelector(`#images`);
+  const avatarPreview = adForm.querySelector(`.ad-form-header__preview img`);
+  const photoPreview = adForm.querySelector(`.ad-form__photo`);
+  const imagesRegExp = /image\/(jpeg|jpg|png|gif)/;
 
   // title
 
@@ -86,6 +89,53 @@
   // images
 
   avatarInput.accept = imagesInput.accept = `image/*`;
+
+  /**
+   * Если данные переданные в inputElement подходят под список расширений
+   * то вызывает resolve, усди нет то reject
+   * @param {HTMLElement} inputElement - input в котором выбирается файл
+   * @return {Promise}
+   */
+  const changeImages = function (inputElement) {
+    const imageFile = inputElement.files[0];
+
+    return new Promise((resolve, reject) => {
+
+      if (imageFile.type.match(imagesRegExp)) {
+        const reader = new FileReader();
+
+        reader.addEventListener(`load`, () => {
+          resolve(reader.result);
+        });
+
+        reader.readAsDataURL(imageFile);
+      } else {
+        reject(`Фотография должна быть в формате jpg, png или gif`);
+      }
+    });
+  };
+
+  // avatar
+
+  avatarInput.addEventListener(`change`, () => {
+    changeImages(avatarInput)
+    .then((result) => {
+      avatarPreview.src = result;
+    })
+    .catch(window.message.addError);
+  });
+
+  // Ad images
+
+  photoPreview.style.backgroundSize = `contain`;
+
+  imagesInput.addEventListener(`change`, () => {
+    changeImages(imagesInput)
+    .then((result) => {
+      photoPreview.style.backgroundImage = `url(${result})`;
+    })
+    .catch(window.message.addError);
+  });
 
   // rooms
 
