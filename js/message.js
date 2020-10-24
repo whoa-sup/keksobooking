@@ -1,19 +1,20 @@
 'use strict';
 
 const main = document.querySelector(`main`);
+const errorTemplate = document.querySelector(`#error`).content.querySelector(`.error`);
+const errorElement = errorTemplate.cloneNode(true);
+const errorMessage = errorElement.querySelector(`.error__message`);
+const errorDefaultMessage = errorMessage.textContent;
+const errorButton = errorElement.querySelector(`.error__button`);
+const successTemplate = document.querySelector(`#success`).content.querySelector(`.success`);
+const successElement = successTemplate.cloneNode(true);
 
 /**
  * Добавляет в DOM сообщение об ошибке, по шаблону #error
  * @param {String} message - текст сообщения
  */
 const renderErrorMessage = (message) => {
-  const errorTemplate = document.querySelector(`#error`).content.querySelector(`.error`);
-  const errorElement = errorTemplate.cloneNode(true);
-  const errorMessage = errorElement.querySelector(`.error__message`);
-  const errorButton = errorElement.querySelector(`.error__button`);
-  if (message) {
-    errorMessage.textContent = message;
-  }
+  errorMessage.textContent = message ? message : errorDefaultMessage;
   errorButton.addEventListener(`click`, () => {
     errorElement.remove();
   });
@@ -45,9 +46,6 @@ const renderErrorMessage = (message) => {
  * Добавляет в DOM сообщение о успешной отправке объявления, по шаблону #error
  */
 const renderSuccessMessage = () => {
-  const successTemplate = document.querySelector(`#success`).content.querySelector(`.success`);
-  const successElement = successTemplate.cloneNode(true);
-
   /**
    * Обработчик нажатия кнопки ESC при открытом сообщении
    * @param {event} e - объект события

@@ -86,11 +86,11 @@ const isEscPressed = (e, cb) => {
 };
 
 window.util = {
-  debounce: debounce,
-  getRandomNumberFromRange: getRandomNumberFromRange,
-  getRandomArrayElement: getRandomArrayElement,
-  shuffleArray: shuffleArray,
-  copyArrayRandomElements: copyArrayRandomElements,
-  renderTextContent: renderTextContent,
-  isEscPressed: isEscPressed,
+  debounce,
+  getRandomNumberFromRange,
+  getRandomArrayElement,
+  shuffleArray,
+  copyArrayRandomElements,
+  renderTextContent,
+  isEscPressed,
 };

@@ -3,13 +3,13 @@
 const PIN_WIDTH = 50;
 const PIN_HEIGHT = 70;
 const pinsList = document.querySelector(`.map__pins`);
+const pinTemplate = document.querySelector(`#pin`).content.querySelector(`.map__pin`);
 
 /**
  * Отрисовывает метки объявлений на карте
  * @param {Array} ads массив объявлений для отрисовки меток
  */
 const renderPins = (ads) => {
-  const pinTemplate = document.querySelector(`#pin`).content.querySelector(`.map__pin`);
 
   /**
    * Создает DOM-элемент метки объявления

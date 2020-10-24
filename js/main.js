@@ -1,6 +1,7 @@
 'use strict';
 
 const DEBOUNCE_INTERVAL = 500; // ms
+const MAIN_MOUSE_BUTTON_KEYCODE = 0;
 const DisableClasses = {
   AD_FORM_ELEMENTS: [
     `.ad-form`,
@@ -122,6 +123,7 @@ const disablePage = () => {
   }
   // Сбрасываем формы
   adForm.reset();
+  window.form.check();
   filtersForm.reset();
   // Возвращаем пин
   mainPin.style.left = mainPinDefaultPosition.left;
@@ -165,7 +167,7 @@ const onMainPinKeydown = (e) => {
 
 mainPin.addEventListener(`mousedown`, (e) => {
   e.preventDefault();
-  if (e.button === 0 && !isActive) {
+  if (e.button === MAIN_MOUSE_BUTTON_KEYCODE && !isActive) {
     activatePage();
   }
 
