@@ -10,19 +10,19 @@ const filterFeaturesCollection = document.querySelectorAll(`#housing-features in
 const filterRules = {
   'housing-type': {
     elem: filterTypeSelect,
-    isMatches: function (data) {
+    isMatches(data) {
       return (this.elem.value === `any`) ? true : this.elem.value === data.offer.type;
     },
   },
   'housing-rooms': {
     elem: filterRoomsSelect,
-    isMatches: function (data) {
+    isMatches(data) {
       return (this.elem.value === `any`) ? true : this.elem.value === data.offer.rooms.toString();
     },
   },
   'housing-guests': {
     elem: filterGuestsSelect,
-    isMatches: function (data) {
+    isMatches(data) {
       return (this.elem.value === `any`) ? true : this.elem.value === data.offer.guests.toString();
     },
   },
@@ -42,13 +42,13 @@ const filterRules = {
         end: Infinity
       },
     },
-    isMatches: function (data) {
+    isMatches(data) {
       return (this.elem.value === `any`) ? true : data.offer.price >= this.map[this.elem.value].start && data.offer.price <= this.map[this.elem.value].end;
     },
   },
   'housing-features': {
     checkboxes: filterFeaturesCollection,
-    isMatches: function (data) {
+    isMatches(data) {
       let match = true;
       for (const checkbox of this.checkboxes) {
         if (match) {

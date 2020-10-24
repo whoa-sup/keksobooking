@@ -7,6 +7,7 @@ const flatTypes = {
   palace: `Дворец`,
 };
 const mapFiltersContainer = document.querySelector(`.map__filters-container`);
+const cardTemplate = document.querySelector(`#card`).content.querySelector(`.map__card`);
 let isCardExist;
 
 const removeCard = () => {
@@ -21,7 +22,6 @@ const removeCard = () => {
  */
 const renderCard = (ad) => {
   removeCard();
-  const cardTemplate = document.querySelector(`#card`).content.querySelector(`.map__card`);
   const cardElement = cardTemplate.cloneNode(true);
 
   const cardTitle = cardElement.querySelector(`.popup__title`);

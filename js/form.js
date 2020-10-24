@@ -38,6 +38,7 @@ const priceInput = adForm.querySelector(`#price`);
 const avatarInput = adForm.querySelector(`#avatar`);
 const imagesInput = adForm.querySelector(`#images`);
 const avatarPreview = adForm.querySelector(`.ad-form-header__preview img`);
+const avatarPreviewDefaultSrc = avatarPreview.src;
 const photoPreview = adForm.querySelector(`.ad-form__photo`);
 const imagesRegExp = /image\/(jpeg|jpg|png|gif)/;
 
@@ -62,7 +63,6 @@ const checkPriceValidity = () => {
   priceInput.min = FormRules.type.minPrice[value];
   priceInput.placeholder = FormRules.type.minPrice[value];
 };
-checkPriceValidity();
 
 typeSelect.addEventListener(`change`, () => {
   checkPriceValidity();
@@ -91,17 +91,18 @@ avatarInput.accept = imagesInput.accept = `image/*`;
 
 /**
  * Если данные переданные в inputElement подходят под список расширений
- * то вызывает resolve, усди нет то reject
+ * то вызывает resolve
  * @param {HTMLElement} inputElement - input в котором выбирается файл
  * @return {Promise}
  */
 const changeImages = function (inputElement) {
   const imageFile = inputElement.files[0];
 
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
 
     if (imageFile.type.match(imagesRegExp)) {
       const reader = new FileReader();
+      inputElement.setCustomValidity(``);
 
       reader.addEventListener(`load`, () => {
         resolve(reader.result);
@@ -109,7 +110,7 @@ const changeImages = function (inputElement) {
 
       reader.readAsDataURL(imageFile);
     } else {
-      reject(`Фотография должна быть в формате jpg, png или gif`);
+      inputElement.setCustomValidity(`Фотография должна быть в формате jpg, png или gif`);
     }
   });
 };
@@ -120,8 +121,7 @@ avatarInput.addEventListener(`change`, () => {
   changeImages(avatarInput)
     .then((result) => {
       avatarPreview.src = result;
-    })
-    .catch(window.message.addError);
+    });
 });
 
 // Ad images
@@ -132,8 +132,12 @@ imagesInput.addEventListener(`change`, () => {
   changeImages(imagesInput)
     .then((result) => {
       photoPreview.style.backgroundImage = `url(${result})`;
-    })
-    .catch(window.message.addError);
+    });
+});
+
+adForm.addEventListener(`reset`, () => {
+  avatarPreview.src = avatarPreviewDefaultSrc;
+  photoPreview.style.backgroundImage = ``;
 });
 
 // rooms
@@ -150,7 +154,6 @@ const checkRoomsCapacityValidity = () => {
     capacitySelect.setCustomValidity(``);
   }
 };
-checkRoomsCapacityValidity();
 
 roomsSelect.addEventListener(`change`, () => {
   checkRoomsCapacityValidity();
@@ -158,3 +161,12 @@ roomsSelect.addEventListener(`change`, () => {
 capacitySelect.addEventListener(`change`, () => {
   checkRoomsCapacityValidity();
 });
+
+const checkForm = () => {
+  checkRoomsCapacityValidity();
+  checkPriceValidity();
+};
+
+window.form = {
+  check: checkForm
+};
